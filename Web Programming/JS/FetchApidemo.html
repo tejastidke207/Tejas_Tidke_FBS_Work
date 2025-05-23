@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hollywood Movies Search</title>
+</head>
+<body>
+  <h2>Search Hollywood Movies</h2>
+
+  <p>
+    Visit the API:
+    <a href="https://www.omdbapi.com/apikey.aspx" target="_blank">OMDb API</a>
+  </p>
+
+  <input type="text" id="search" placeholder="Enter movie name">
+  <button id="searchBtn">Search</button>
+
+  <div id="movies" style="margin-top: 20px;"></div>
+
+  <script>
+    const apiKey = 'thewdb';
+
+    document.getElementById('searchBtn').addEventListener('click', () => {
+      const query = document.getElementById('search').value.trim();
+      const container = document.getElementById('movies');
+      container.innerHTML = ''; // Clear previous results
+
+      if (!query) {
+        container.innerHTML = "<p>Please enter a movie name.</p>";
+        return;
+      }
+
+      fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.Response === "True") {
+            data.Search.forEach(movie => {
+
+              const movieHTML = `
+                <div style="margin: 10px; border: 1px solid #ccc; padding: 10px; width: 200px;">
+                  <h3>${movie.Title} (${movie.Year}) (${movie.Ratings})</h3>
+                  <img src="${movie.Poster !== "N/A" ? movie.Poster : 'https://via.placeholder.com/200x300?text=No+Image'}" 
+                       alt="Poster for ${movie.Title}" style="width: 100%;">
+                </div>
+              `;
+              container.innerHTML += movieHTML;
+            });
+          } else {
+            container.innerHTML = `<p>No movies found for "${query}".</p>`;
+          }
+        })
+        .catch(error => {
+          container.innerHTML = `<p>Error fetching data: ${error}</p>`;
+        });
+    });
+  </script>
+</body>
+</html>
